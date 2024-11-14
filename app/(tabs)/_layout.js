@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 
-import { HomeIcon, InfoIcon } from "../../components/Icons";
+import { ScannerIcon, InfoIcon } from "../../components/Icons";
 import { useEffect } from "react";
 import { check } from "prettier";
 
@@ -10,20 +10,20 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: { backgroundColor: "#000" },
-        tabBarActiveTintColor: "yellow",
+        tabBarActiveTintColor: "#ffffff",
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="scaner"
         options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => <HomeIcon color={color} />,
+          title: "Escáner",
+          tabBarIcon: ({ color }) => <ScannerIcon color={color} />,
         }}
       />
       <Tabs.Screen
         name="about"
         options={{
-          title: "About",
+          title: "Guía",
           tabBarIcon: ({ color }) => <InfoIcon color={color} />,
         }}
       />

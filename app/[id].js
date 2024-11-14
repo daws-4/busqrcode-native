@@ -8,14 +8,14 @@ import { getGameDetails } from "../lib/metacritic";
 import { Score } from "../components/Score";
 
 export default function Detail() {
-  const { gameslug } = useLocalSearchParams();
+  const { id } = useLocalSearchParams();
   const [gameInfo, setGameInfo] = useState(null);
 
   useEffect(() => {
-    if (gameslug) {
-      getGameDetails(gameslug).then(setGameInfo);
+    if (id) {
+      getGameDetails(id).then(setGameInfo);
     }
-  }, [gameslug]);
+  }, [id]);
 
   return (
     <Screen>
