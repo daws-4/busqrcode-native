@@ -11,7 +11,7 @@ export default function Layout() {
           headerStyle: { backgroundColor: "white" },
           headerTintColor: "yellow",
           headerTitle: "",
-          headerLeft: () => (<Logo />),
+          headerLeft: () => (<Logo/>),
           headerRight: () => (
             <Link asChild href="/about">
               <Pressable>
