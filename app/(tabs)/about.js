@@ -1,13 +1,16 @@
 import { Link } from "expo-router";
 import { Pressable, ScrollView, Text } from "react-native";
 import { HomeIcon } from "../../components/Icons";
-
+import { useUserContext, useUserToggleContext } from "../../lib/AuthProvider";
 import { styled } from "nativewind";
 import { Screen } from "../../components/Screen";
 
 const StyledPressable = styled(Pressable);
 
 export default function About() {
+  const user = useUserContext();
+  const cambiaLogin = useUserToggleContext();
+
   return (
     <Screen>
       <ScrollView>

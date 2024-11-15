@@ -2,10 +2,12 @@ import { Link, Stack } from "expo-router";
 import { Pressable, View } from "react-native";
 import { Logo } from "../components/Logo";
 import { CircleInfoIcon } from "../components/Icons";
+import { UserProvider } from "../lib/AuthProvider";
 
 export default function Layout() {
   return (
-    <View className="flex-1 bg-black">
+    <UserProvider>
+    <View className="flex-1">
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: "white" },
@@ -20,7 +22,8 @@ export default function Layout() {
             </Link>
           ),
         }}
-      />
+        />
     </View>
+      </UserProvider>
   );
 }

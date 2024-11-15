@@ -1,43 +1,49 @@
 import { Screen } from "./Screen";
 import { Stack } from "expo-router";
-import { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  StatusBar,
-  Text,
-  TextInput,
-  Image,
-  Animated,
-  Pressable,
-} from "react-native";
+import { useState, useEffect } from "react";
+import {View,Text,TextInput,Pressable} from "react-native";
+import { router } from 'expo-router';
 import {  Button } from "@react-native-material/core";
 import { Logo1 } from "./Logo1";
+import axios from "axios";
+import { useUserContext, useUserToggleContext } from "../lib/AuthProvider";
+
+
+//https://docs.expo.dev/router/reference/authentication/
+//https://www.youtube.com/watch?v=Ae33_gdJgnQ
 export function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(true);
-
+    const togglePassword = () => setShowPassword(!showPassword);
+    const user = useUserContext();
+    const login = useUserToggleContext();
+    console.log(user + 'usuario')
+    const now = new Date();
     const submitData = async () => {
-        try {
-            console.log("submitData");
-            alert(username+ password);
-            // const response = await axios.posty("http://localhost:3000/api/app/fiscales", {username, password});
-            // const data = await response.json();
-            // console.log(data);
+        if(username !='' && password !='') {
+            console.log(now + 'hora' )
+            try {
+            const response = await axios.post("http://172.16.0.242:3000/api/auth/fiscales", {username, password});
+            if(response.status === 200) {
+                login(response.data);
+            }else{
+                alert("Usuario o contraseña incorrectos");
+            }
         } catch (error) {
-            
             console.error(error);
+            alert("Usuario o contraseña incorrectos");
         }
-
-    }
+    }else{
+    alert("Por favor, llena todos los campos");
+            }}
 
     return(
          <Screen>
             <Stack.Screen
         options={{
-          headerStyle: { backgroundColor: "#7e9aff" },
-          headerTintColor: "white",
+          headerStyle: { backgroundColor: "white" },
+          headerTintColor: "black",
           headerLeft: () => {},
           headerTitle: "Inicia Sesión como Fiscal",
           headerRight: () => {},
@@ -52,12 +58,14 @@ export function Login() {
             <Text className='font-bold text-3xl m-2'>Inicia Sesión</Text>
             <View className='w-full mt-4'>
               <TextInput
+                required
                 placeholder="Usuario"
                 value={username}
                 onChangeText={setUsername}
                 className='p-4 mb-4 rounded-md bg-slate-100 dark:bg-boxdark dark:text-white text-xl'
               />
               <TextInput
+                required
                 placeholder="Contraseña"
                 value={password}
                 onChangeText={setPassword}
