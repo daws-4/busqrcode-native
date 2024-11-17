@@ -1,63 +1,66 @@
 import { Link } from "expo-router";
 import { Pressable, ScrollView, Text } from "react-native";
-import { HomeIcon } from "../../components/Icons";
-import { useUserContext, useUserToggleContext } from "../../lib/AuthProvider";
+import { HomeIcon, LogoutIcon } from "../../components/Icons";
+import { useUserContext, useUserToggleContext, useUserLogoutContext, useRutaContext, useRutaToggleContext } from "../../lib/AuthProvider";
 import { styled } from "nativewind";
 import { Screen } from "../../components/Screen";
-
+import { Redirect } from "expo-router";
+import { View } from "react-native";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { API } from "@env";
 const StyledPressable = styled(Pressable);
 
 export default function About() {
+  const logout = useUserLogoutContext();
+  const rutas = useRutaContext();
   const user = useUserContext();
-  const cambiaLogin = useUserToggleContext();
-
+  
   return (
     <Screen>
       <ScrollView>
-        <Link asChild href="/">
-          <StyledPressable className={`active:opacity-80`}>
-            <HomeIcon />
-          </StyledPressable>
-        </Link>
+        <StyledPressable
+          className="flex flex-row active:opacity-80 items-center mb-2 justify-end"
+          onPress={() => logout()}
+        >
+          <View className="flex flex-row bg-slate-300 p-2 rounded border-2 border-slate-700">
+            <Text className="text-lg mr-2">Cerrar Sesión</Text>
+            <LogoutIcon />
+          </View>
+        </StyledPressable>
 
-        <Text className="text-black font-bold mb-8 text-2xl">
-          Sobre el proyecto
+        <Text className="text-black font-bold mb-4 text-2xl">
+          Info del Fiscal
         </Text>
 
-        <Text className="text-black text-black/90 mb-4">
-          lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea
-        </Text>
+        {user && (
+          <View>
+            <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
+              <Text className="font-bold text-black">Nombre de usuario: </Text>
+              {user.username}{" "}
+              <Text className="font-bold text-black">Número: </Text> 1
+            </Text>
+            <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
+              <Text className="font-bold text-black">Ubicación: </Text>
+              {user.ubicacion}
+            </Text>
+            <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
+              <Text className="font-bold text-black">Rutas Asignadas: </Text>
+            </Text>
+            {rutas.map((ruta) => (
+              <Text
+                className="text-black text-black/90 mb-2 mx-4 text-lg"
+                key={ruta._id}
+              >
+                {ruta.nombre}
+              </Text>
+            ))}
+          </View>
+        )}
 
-        <Text className="text-black text-black/90 mb-4">
-          lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea
-        </Text>
+        <Text className="text-black font-bold mb-4 text-2xl">Guía de uso</Text>
 
-        <Text className="text-black text-black/90 mb-4">
-          lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea
-        </Text>
-
-        <Text className="text-black text-black/90 mb-4">
-          lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea
-        </Text>
-
-        <Text className="text-black text-black/90 mb-4">
-          lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea
-        </Text>
+        <Text className="text-black text-black/90 mb-4"></Text>
       </ScrollView>
     </Screen>
   );

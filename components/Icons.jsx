@@ -17,3 +17,7 @@ export const InfoIcon = (props) => (
 export const ScannerIcon = (props) => (
   <MaterialIcons name="qr-code-scanner" size={32} color="black" {...props} />
 )
+
+export const LogoutIcon = (props) => (
+  <MaterialIcons name="logout" size={32} color="black" {...props}/>
+)
