@@ -68,7 +68,7 @@ if(user!==null){
               placeholder="Usuario"
               value={username}
               onChangeText={setUsername}
-              className="p-4 mb-4 rounded-md text-black text-black/90  bg-slate-100 dark:bg-boxdark dark:text-white text-xl"
+              className="p-4 mb-4 rounded-md text-black text-black/90  bg-slate-100 dark:bg-boxdark  text-xl"
             />
             <TextInput
               required
@@ -76,7 +76,7 @@ if(user!==null){
               value={password}
               onChangeText={setPassword}
               secureTextEntry={showPassword}
-              className="p-4 mb-4 rounded-md text-black text-black/90  bg-slate-100 dark:bg-boxdark dark:text-white text-xl"
+              className="p-4 mb-4 rounded-md text-black text-black/90  bg-slate-100 dark:bg-boxdark  text-xl"
             />
           </View>
           <Pressable
