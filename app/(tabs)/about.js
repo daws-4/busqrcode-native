@@ -32,7 +32,6 @@ export default function About() {
         <Text className="text-black font-bold mb-4 text-2xl">
           Info del Fiscal
         </Text>
-
         {user && (
           <View>
             <Text className="text-black text-black/90 mb-2 mx-4 text-lg">

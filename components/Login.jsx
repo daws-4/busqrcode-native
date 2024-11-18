@@ -2,10 +2,7 @@ import { Screen } from "./Screen";
 import { Stack, Link, Redirect } from "expo-router";
 import { useState, useEffect } from "react";
 import { View, Text, TextInput, Pressable } from "react-native";
-import { router } from "expo-router";
-import { Button } from "@react-native-material/core";
 import { Logo1 } from "./Logo1";
-import { Logo } from "./Logo";
 import axios from "axios";
 import { useUserContext, useUserToggleContext } from "../lib/AuthProvider";
 import { API } from '@env'
@@ -49,7 +46,7 @@ if(user!==null){
     <Screen>
       <View className="flex flex-cols justify-center items-center">
         <View className="bg-white px-2 pt-10 pb-2 flex flex-row justify-between items-center border-b-2 border-stone-600 w-full">
-          <Text className='text-xl'>Inicar Sesión como Fiscal</Text>
+          <Text className='text-xl'>Iniciar Sesión como Fiscal</Text>
         </View>
         <Logo1 />
         <Text className="text-xl">Línea Santa Teresa</Text>

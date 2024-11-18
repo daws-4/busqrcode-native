@@ -17,6 +17,8 @@
     "@react-navigation/stack": "^6.4.1",
     "axios": "^1.7.7",
     "expo": "~51.0.18",
+    "expo-application": "~5.9.1",
+    "expo-build-properties": "^0.13.1",
     "expo-constants": "~16.0.2",
     "expo-linking": "~6.3.1",
     "expo-router": "~3.5.18",
@@ -34,7 +36,7 @@
     "react-native-vector-icons": "^10.2.0",
     "react-native-vision-camera": "^4.6.1",
     "react-native-web": "~0.19.10",
-    "expo-application": "~5.9.1"
+    "expo-camera": "~15.0.16"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
