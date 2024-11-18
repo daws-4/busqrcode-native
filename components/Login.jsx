@@ -34,7 +34,11 @@ export function Login() {
           alert("No se puede conectar al servidor");
         }
       } catch (error) {
+        if (error.response.status === 401) {
         alert("Usuario o contraseña incorrectos");
+        } else {
+          alert("No se puede conectar al servidor");
+        }
       }
     } else {
       alert("Por favor, llena todos los campos");
