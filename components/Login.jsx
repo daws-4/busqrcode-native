@@ -6,6 +6,7 @@ import { Logo1 } from "./Logo1";
 import axios from "axios";
 import { useUserContext, useUserToggleContext } from "../lib/AuthProvider";
 import { API } from '@env'
+import { StatusBar } from "expo-status-bar";
 export function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -21,14 +22,16 @@ export function Login() {
     console.log(API + "api");
       try {
         const response = await axios.post(
-          `${API}/api/auth/fiscales`,
+          `http://172.16.0.242:3000/api/auth/fiscales`,
           { username, password }
         );
         if (response.status === 200) {
           login(response.data);
           // router.push("/scaner");
-        } else {
+        }else if (response.status === 401) {
           alert("Usuario o contraseña incorrectos");
+        } else {
+          alert("No se puede conectar al servidor");
         }
       } catch (error) {
         alert("Usuario o contraseña incorrectos");
@@ -44,23 +47,24 @@ if(user!==null){
 }
   return (
     <Screen>
+        <StatusBar style="light" />
       <View className="flex flex-cols justify-center items-center">
         <View className="bg-white px-2 pt-10 pb-2 flex flex-row justify-between items-center border-b-2 border-stone-600 w-full">
-          <Text className='text-xl'>Iniciar Sesión como Fiscal</Text>
+          <Text className='text-xl text-black text-black/90 '>Iniciar Sesión como Fiscal</Text>
         </View>
         <Logo1 />
-        <Text className="text-xl">Línea Santa Teresa</Text>
+        <Text className="text-xl text-black text-black/90 ">Línea Santa Teresa</Text>
       </View>
       <View className="mb-10 rounded-sm bg-slate-200 shadow-default dark:border-strokedark dark:bg-boxdark">
         <View className="flex justify-center items-center m-5">
-          <Text className="font-bold text-3xl m-2">Inicia Sesión</Text>
+          <Text className="font-bold text-3xl m-2 text-black text-black/90 ">Inicia Sesión</Text>
           <View className="w-full mt-4">
             <TextInput
               required
               placeholder="Usuario"
               value={username}
               onChangeText={setUsername}
-              className="p-4 mb-4 rounded-md bg-slate-100 dark:bg-boxdark dark:text-white text-xl"
+              className="p-4 mb-4 rounded-md text-black text-black/90  bg-slate-100 dark:bg-boxdark dark:text-white text-xl"
             />
             <TextInput
               required
@@ -68,7 +72,7 @@ if(user!==null){
               value={password}
               onChangeText={setPassword}
               secureTextEntry={showPassword}
-              className="p-4 mb-4 rounded-md bg-slate-100 dark:bg-boxdark dark:text-white text-xl"
+              className="p-4 mb-4 rounded-md text-black text-black/90  bg-slate-100 dark:bg-boxdark dark:text-white text-xl"
             />
           </View>
           <Pressable
@@ -76,7 +80,7 @@ if(user!==null){
             title="click me"
             onPress={() => submitData()}
           >
-            <Text className="text-white text-lg">Iniciar Sesión</Text>
+            <Text className="text-white text-lg ">Iniciar Sesión</Text>
           </Pressable>
         </View>
       </View>

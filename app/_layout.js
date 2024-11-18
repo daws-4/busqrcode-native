@@ -3,15 +3,16 @@ import { Pressable, View } from "react-native";
 import { Logo } from "../components/Logo";
 import { CircleInfoIcon } from "../components/Icons";
 import { UserProvider } from "../lib/AuthProvider";
-
+import { StatusBar } from "expo-status-bar";
 
 export default function Layout() {
  
   return (
     <UserProvider>
-    <View className="flex-1">
-      <Slot/>
-    </View>
-      </UserProvider>
+      <View className="flex-1">
+        <StatusBar style="dark" />
+        <Slot />
+      </View>
+    </UserProvider>
   );
 }

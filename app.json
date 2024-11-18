@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "busqrcode_native",
+    "name": "busqrcode",
     "slug": "busqrcode_native",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -20,7 +20,12 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": ["CAMERA"]
+      "permissions": [
+        "CAMERA",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.dawszz_4.busqrcode_native"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -35,7 +40,11 @@
           "recordAudioAndroid": true
         }
       ]
-    
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "ef7dba06-657a-429d-a25a-0721b5a19219"
+      }
+    }
   }
 }

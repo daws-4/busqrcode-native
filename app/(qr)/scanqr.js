@@ -30,7 +30,10 @@ export default function Scanqr() {
        if (data == busId) return ;
        setBusId(data);
        try{
-          const response = await axios.post(`${API}/api/app/unidades`, {busId: data});
+          const response = await axios.post(
+            `http://172.16.0.242:3000/api/app/unidades`,
+            { busId: data }
+          );
           setBusData(response.data);
        }catch(error){
          console.log(error + " error");
