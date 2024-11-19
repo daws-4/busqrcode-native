@@ -18,11 +18,9 @@ export function Login() {
   const now = new Date();
   const submitData = async () => {
     if (username != "" && password != "") {
-      console.log(now + "hora");
-    console.log(API + "api");
       try {
         const response = await axios.post(
-          `http://172.16.0.242:3000/api/auth/fiscales`,
+          `https://stllbusqrcode.vercel.app/api/auth/fiscales`,
           { username, password }
         );
         if (response.status === 200) {

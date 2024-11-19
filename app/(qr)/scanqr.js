@@ -31,7 +31,7 @@ export default function Scanqr() {
        setBusId(data);
        try{
           const response = await axios.post(
-            `http://172.16.0.242:3000/api/app/unidades`,
+            `https://stllbusqrcode.vercel.app/api/app/unidades`,
             { busId: data }
           );
           setBusData(response.data);

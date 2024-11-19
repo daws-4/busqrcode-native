@@ -26,7 +26,7 @@ export function Main() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = (await axios.get(`http://172.16.0.242:3000/api/app/rutas`)).data;
+        const data = (await axios.get(`https://stllbusqrcode.vercel.app/api/app/rutas`)).data;
         let rutasl = [];
         for (let r of data) {
           for (let f of r.fiscales) {
@@ -54,7 +54,7 @@ export function Main() {
         const seconds = String(now.getUTCSeconds()).padStart(2, '0');
         const milliseconds = String(now.getUTCMilliseconds()).padStart(3, '0');
         const utcDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`
-        const response = await axios.post(`http://172.16.0.242:3000/api/app/timestamp`, {
+        const response = await axios.post(`https://stllbusqrcode.vercel.app/api/app/timestamp`, {
           id_ruta: selectedRuta,
           id_unidad: busData._id,
           timestamp_telefono: utcDate,

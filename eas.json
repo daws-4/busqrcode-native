@@ -13,13 +13,13 @@
         "buildType": "apk"
       },
       "env": {
-        "API": "http://172.16.0.242:3000"
+        "API": "https://stllbusqrcode.vercel.app"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "API": "http://172.16.0.242:3000"
+        "API": "https://stllbusqrcode.vercel.app"
       }
     }
   },
