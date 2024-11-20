@@ -14,7 +14,6 @@ export function Login() {
   const togglePassword = () => setShowPassword(!showPassword);
   const user = useUserContext();
   const login = useUserToggleContext();
-  console.log(user + "usuario");
   const now = new Date();
   const submitData = async () => {
     if (username != "" && password != "") {

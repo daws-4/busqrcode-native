@@ -36,6 +36,7 @@ export default function Scanqr() {
           );
           setBusData(response.data);
        }catch(error){
+        alert("Este código QR no corresponede a ninguna unidad");
          console.log(error + " error");
        }
        console.log("Type: " + type + "\nData: " + data);

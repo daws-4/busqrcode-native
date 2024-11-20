@@ -10,8 +10,8 @@ export default function Layout() {
   return (
     <UserProvider>
       <View className="flex-1">
-        <StatusBar style="dark" />
         <Slot />
+        <StatusBar style="dark" />
       </View>
     </UserProvider>
   );

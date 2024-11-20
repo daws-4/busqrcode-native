@@ -1,7 +1,13 @@
 import { Link } from "expo-router";
 import { Pressable, ScrollView, Text } from "react-native";
 import { HomeIcon, LogoutIcon } from "../../components/Icons";
-import { useUserContext, useUserToggleContext, useUserLogoutContext, useRutaContext, useRutaToggleContext } from "../../lib/AuthProvider";
+import {
+  useUserContext,
+  useUserToggleContext,
+  useUserLogoutContext,
+  useRutaContext,
+  useRutaToggleContext,
+} from "../../lib/AuthProvider";
 import { styled } from "nativewind";
 import { Screen } from "../../components/Screen";
 import { Redirect } from "expo-router";
@@ -15,7 +21,7 @@ export default function About() {
   const logout = useUserLogoutContext();
   const rutas = useRutaContext();
   const user = useUserContext();
-  
+
   return (
     <Screen>
       <ScrollView>
@@ -59,7 +65,22 @@ export default function About() {
 
         <Text className="text-black font-bold mb-4 text-2xl">Guía de uso</Text>
 
-        <Text className="text-black text-black/90 mb-4"></Text>
+        <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
+          <Text className="font-bold text-black ">Paso 1: </Text>
+          En la pestaña de "Escaner" presionar el botón "Escanear Código QR"
+        </Text>
+        <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
+          <Text className="font-bold text-black ">Paso 2: </Text>
+          Apunta al código QR que está en la unidad
+        </Text>
+        <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
+          <Text className="font-bold text-black ">Paso 3: </Text>
+          Selecciona la ruta que corresponede a la unidad en ese momento
+        </Text>
+        <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
+          <Text className="font-bold text-black ">Paso 4: </Text>
+          Presiona el botón "Enviar Datos"
+        </Text>
       </ScrollView>
     </Screen>
   );
