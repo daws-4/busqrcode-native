@@ -3,7 +3,7 @@ import { Stack, Link } from "expo-router";
 import { Pressable } from "react-native";
 import { CircleInfoIcon } from "../../components/Icons";
 import { Logo } from "../../components/Logo";
-
+import {StatusBar} from "expo-status-bar";
 
 export default function qrLayout(){
     return (
@@ -25,6 +25,7 @@ export default function qrLayout(){
             tabBarActiveTintColor: "#ffffff",
           }}
         />
+        <StatusBar style="dark" />
       </View>
     );
 }
