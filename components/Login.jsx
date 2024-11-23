@@ -48,7 +48,7 @@ if(user!==null){
 }
   return (
     <Screen>
-        <StatusBar style="light" />
+        
       <View className="flex flex-cols justify-center items-center">
         <View className="bg-white px-2 pt-10 pb-2 flex flex-row justify-between items-center border-b-2 border-stone-600 w-full">
           <Text className='text-xl text-black text-black/90 '>Iniciar Sesión como Fiscal</Text>
@@ -85,6 +85,7 @@ if(user!==null){
           </Pressable>
         </View>
       </View>
+      <StatusBar style="dark" />
     </Screen>
   );
 }

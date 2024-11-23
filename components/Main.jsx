@@ -8,8 +8,6 @@ import {
   useBusIdToggleContext,
 } from "../lib/AuthProvider";
 import { Screen } from "./Screen";
-import { Redirect } from "expo-router";
-import SelectDropdown from "react-native-select-dropdown";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
 import { API } from "@env";
