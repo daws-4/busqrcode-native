@@ -6,11 +6,14 @@ import {
   useRutaContext,
   useRutaToggleContext,
   useBusIdToggleContext,
+  useBusListContext,
+  useBusListToggleContext,
 } from "../lib/AuthProvider";
 import { Screen } from "./Screen";
 import { Redirect } from "expo-router";
 import SelectDropdown from "react-native-select-dropdown";
 import { Picker } from "@react-native-picker/picker";
+import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from "axios";
 import { API } from "@env";
 import { Link } from "expo-router";
@@ -21,8 +24,17 @@ export function Main() {
   const rutas = useRutaContext();
   const busData = useBusIdContext();
   const setBusData = useBusIdToggleContext();
+  const busList = useBusListContext();
+  const setBusList = useBusListToggleContext();
   const [selectedRuta, setSelectedRuta] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedTime, setSelectedTime] = useState(new Date());
+  const [selectedRealTime, setSelectedRealTime] = useState(new Date());
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
+console.log(selectedTime)
+
+ 
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -35,6 +47,8 @@ export function Main() {
             }
           }
         }
+        const buses = (await axios.get(`https://stllbusqrcode.vercel.app/api/app/unidades`)).data;
+        setBusList(buses);
         setRutas(rutasl);
       } catch (error) {
         console.log(error + " error");
@@ -43,7 +57,9 @@ export function Main() {
     fetchData();
   }, []);
   const handleSubmit = async () => {
+    if (isSubmitting) return;
     if(busData && selectedRuta){
+      setIsSubmitting(true);
       try {
          const now = new Date();
         const year = now.getUTCFullYear();
@@ -54,10 +70,13 @@ export function Main() {
         const seconds = String(now.getUTCSeconds()).padStart(2, '0');
         const milliseconds = String(now.getUTCMilliseconds()).padStart(3, '0');
         const utcDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`
-        const response = await axios.post(`https://stllbusqrcode.vercel.app/api/app/timestamp`, {
+
+        //https://stllbusqrcode.vercel.app
+        const response = await axios.post(`http://172.16.0.242:3000/api/app/timestamp`, {
           id_ruta: selectedRuta,
           id_unidad: busData._id,
           timestamp_telefono: utcDate,
+          timestamp_salida: selectedTime,
           id_fiscal: user._id,
         });
         if(response.status == 200){
@@ -68,6 +87,8 @@ export function Main() {
         }
       } catch (error) {
         console.log(error)
+      } finally {
+       setIsSubmitting(false); // Establecer isSubmitting a false al final
       }
     }else{
       alert("Debes seleccionar ruta y autobús");
@@ -78,6 +99,21 @@ export function Main() {
     title: "Selected item title",
     description: "Secondary long descriptive text ...",
   };
+  const advanceTimeByFourHours = (selectedTime) => {
+    const newTime = new Date(selectedTime);
+    newTime.setHours(newTime.getHours() + 4);
+    console.log(newTime)
+    console.log(`Hora adelantada: ${newTime}`);
+    return(newTime);
+  };
+  
+  const onTimeChange = (event, selectedDate) => {
+    const currentDate = selectedDate || selectedTime;
+    setShowTimePicker(false);
+    setSelectedTime(advanceTimeByFourHours(currentDate));
+    setSelectedRealTime(currentDate);
+  };
+
   return (
     <Screen>
       <View className="flex flex-col items-center justify-center">
@@ -100,12 +136,6 @@ export function Main() {
             <Text className="font-bold text-black">Conductor: </Text>
             {busData.nombre_conductor}
           </Text>
-          <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
-            <Text className="font-bold text-black">
-              Teléfono del Conductor:
-            </Text>
-            {busData.telefono_conductor}
-          </Text>
           <View className='m-3 bg-slate-200 rounded'>
             <Picker
               selectedValue={selectedRuta}
@@ -119,12 +149,27 @@ export function Main() {
               ))}
             </Picker>
           </View>
-            <Pressable
+         {user.numero == 1 ? <View>
+        <Pressable className="p-3 mt-10 bg-slate-200 rounded items-center justify-center border-slate-800 border-2" onPress={() => setShowTimePicker(true)} title="Seleccionar Hora" ><Text className='text-lg font-bold'>Hora de Salida</Text>
+        </Pressable>
+        {showTimePicker && (
+          <DateTimePicker
+            value={selectedTime}
+            mode="time"
+            display="default"
+             onChange={onTimeChange}
+          />
+        )}
+        <Text>Hora seleccionada: {selectedRealTime ? selectedRealTime.toString() : ''} </Text>
+          </View>: ''}
+           {isSubmitting ? <View className="p-3 mt-10 bg-slate-200 rounded items-center justify-center border-slate-800 border-2"> 
+            <Text className='text-lg font-bold'>Enviando...</Text>
+           </View> :<Pressable
                 onPress={() => handleSubmit()}
                 className="p-3 mt-10 bg-slate-200 rounded items-center justify-center border-slate-800 border-2"
                 >
                 <Text className='text-lg font-bold'>Enviar Datos</Text>
-              </Pressable>
+              </Pressable>}
         </View>
       )}
     </Screen>

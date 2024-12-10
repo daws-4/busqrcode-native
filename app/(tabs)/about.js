@@ -43,7 +43,7 @@ export default function About() {
             <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
               <Text className="font-bold text-black">Nombre de usuario: </Text>
               {user.username}{" "}
-              <Text className="font-bold text-black">Número: </Text> 1
+              <Text className="font-bold text-black">Número: </Text> {user.numero}
             </Text>
             <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
               <Text className="font-bold text-black">Ubicación: </Text>
