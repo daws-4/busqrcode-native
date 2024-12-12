@@ -11,13 +11,16 @@ export function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const togglePassword = () => setShowPassword(!showPassword);
   const user = useUserContext();
   const login = useUserToggleContext();
   const busList = useBusListContext();
   const now = new Date();
   const submitData = async () => {
+     if (isSubmitting) return;
     if (username != "" && password != "") {
+        setIsSubmitting(true);
       try {
         const response = await axios.post(
           `https://stllbusqrcode.vercel.app/api/auth/fiscales`,
@@ -37,6 +40,8 @@ export function Login() {
         } else {
           alert("No se puede conectar al servidor");
         }
+      } finally {
+       setIsSubmitting(false); // Establecer isSubmitting a false al final
       }
     } else {
       alert("Por favor, llena todos los campos");

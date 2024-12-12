@@ -30,8 +30,6 @@ export function Main() {
   const [selectedRealTime, setSelectedRealTime] = useState(new Date());
   const [showTimePicker, setShowTimePicker] = useState(false);
 
-console.log(selectedTime)
-
  
   useEffect(() => {
     const fetchData = async () => {
@@ -70,7 +68,7 @@ console.log(selectedTime)
         const utcDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`
 
         //https://stllbusqrcode.vercel.app
-        const response = await axios.post(`http://172.16.0.242:3000/api/app/timestamp`, {
+        const response = await axios.post(`https://stllbusqrcode.vercel.app/api/app/timestamp`, {
           id_ruta: selectedRuta,
           id_unidad: busData._id,
           timestamp_telefono: utcDate,
@@ -111,6 +109,21 @@ console.log(selectedTime)
     setSelectedTime(advanceTimeByFourHours(currentDate));
     setSelectedRealTime(currentDate);
   };
+
+    const formatDate1 = (dateString) => {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        const secs = String(date.getSeconds()).padStart(2, "0");
+        const ampm = hours >= 12 ? "PM" : "AM";
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        const strHours = String(hours).padStart(2, "0");
+        return `${strHours}:${minutes} ${ampm}`;
+    };
 
   return (
     <Screen>
@@ -158,7 +171,10 @@ console.log(selectedTime)
              onChange={onTimeChange}
           />
         )}
-        <Text>Hora seleccionada: {selectedRealTime ? selectedRealTime.toString() : ''} </Text>
+
+       <View>
+        <Text className='text-base'>Hora seleccionada: {selectedRealTime ? formatDate1(selectedRealTime) : ''} </Text>
+       </View>
           </View>: ''}
            {isSubmitting ? <View className="p-3 mt-10 bg-slate-200 rounded items-center justify-center border-slate-800 border-2"> 
             <Text className='text-lg font-bold'>Enviando...</Text>
