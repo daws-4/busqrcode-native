@@ -160,7 +160,7 @@ export function Main() {
               ))}
             </Picker>
           </View>
-         {user.numero == 1 ? <View>
+         {user.sethora ? <View>
         <Pressable className="p-3 mt-10 bg-slate-200 rounded items-center justify-center border-slate-800 border-2" onPress={() => setShowTimePicker(true)} title="Seleccionar Hora" ><Text className='text-lg font-bold'>Hora de Salida</Text>
         </Pressable>
         {showTimePicker && (
