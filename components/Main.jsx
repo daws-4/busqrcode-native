@@ -106,7 +106,7 @@ export function Main() {
   const onTimeChange = (event, selectedDate) => {
     const currentDate = selectedDate || selectedTime;
     setShowTimePicker(false);
-    setSelectedTime(advanceTimeByFourHours(currentDate));
+    setSelectedTime(currentDate);
     setSelectedRealTime(currentDate);
   };
 
