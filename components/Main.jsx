@@ -48,14 +48,16 @@ export function Main() {
         }
         const buses = (await axios.get(`https://stllbusqrcode.vercel.app/api/app/unidades`)).data;
    
-            const response  = (await axios.post(`https://stllbusqrcode.vercel.app/api/app/timestamp/fiscal`, {
-                numero_fiscal: user.numero,
-                id_fiscal: user._id,
-            }));
-              const sortedData = response.data.sort((a, b) => new Date(b.timestamp_salida) - new Date(a.timestamp_salida));
+        if(user.sethora){
+          const response  = (await axios.post(`https://stllbusqrcode.vercel.app/api/app/timestamp/fiscal`, {
+            numero_fiscal: user.numero,
+            id_fiscal: user._id,
+          }));
+          const sortedData = response.data.sort((a, b) => new Date(b.timestamp_salida) - new Date(a.timestamp_salida));
+          setGetRegistros(sortedData);
+        }
 
 
-            setGetRegistros(sortedData);
             setBusList(buses);
             setRutas(rutasl);
       } catch (error) {
@@ -193,7 +195,7 @@ export function Main() {
       )}
 
 
-         <View className='m-6'>
+        {user.sethora? <View className='m-6'>
         {isLoading ? (
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
@@ -220,7 +222,7 @@ export function Main() {
           )
         )}
       </View>
-
+: ''}
 
     </Screen>
   </ScrollView>
