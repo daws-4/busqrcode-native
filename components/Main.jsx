@@ -15,7 +15,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from "axios";
 import { API } from "@env";
 import { Link } from "expo-router";
-
+import NetInfo from '@react-native-community/netinfo';
 export function Main() {
   const user = useUserContext();
   const setRutas = useRutaToggleContext();
@@ -31,6 +31,8 @@ export function Main() {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [getRegistros, setGetRegistros] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [requestQueue, setRequestQueue] = useState([]);
+  const [isProcessingQueue, setIsProcessingQueue] = useState(false);
 
  
   useEffect(() => {
@@ -69,12 +71,33 @@ export function Main() {
 
     fetchData();
   }, []);
+
+
+ const sendRequest = async (request, isQueued = false) => {
+    try {
+      const response = await Promise.race([
+        axios.post(`https://stllbusqrcode.vercel.app/api/app/timestamp`, request),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000))
+      ]);
+
+      if (response.status === 200) {
+        // alert(isQueued ? 'Petición enviada desde la cola' : 'Datos enviados correctamente');
+        // setTimeout(() => alert(''), 3000);
+        return true; // Indicar que la petición se envió correctamente
+      }
+    } catch (error) {
+      console.log(error + " error");
+      alert('La petición se agregó a la cola');
+      // setTimeout(() => alert(''), 3000);
+      return false; // Indicar que la petición se agregó a la cola
+    }
+  };
   const handleSubmit = async () => {
     if (isSubmitting) return;
-    if(busData && selectedRuta){
-      setIsSubmitting(true);
+  if (busData && selectedRuta) {
+      setIsSubmitting(true); // Establecer isSubmitting a true al inicio
       try {
-         const now = new Date();
+        const now = new Date();
         const year = now.getUTCFullYear();
         const month = String(now.getUTCMonth() + 1).padStart(2, '0');
         const day = String(now.getUTCDate()).padStart(2, '0');
@@ -82,32 +105,71 @@ export function Main() {
         const minutes = String(now.getUTCMinutes()).padStart(2, '0');
         const seconds = String(now.getUTCSeconds()).padStart(2, '0');
         const milliseconds = String(now.getUTCMilliseconds()).padStart(3, '0');
-        const utcDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`
+        const utcDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
 
-        //https://stllbusqrcode.vercel.app
-        const response = await axios.post(`https://stllbusqrcode.vercel.app/api/app/timestamp`, {
+        const request = {
           id_ruta: selectedRuta,
           id_unidad: busData._id,
           timestamp_telefono: utcDate,
           timestamp_salida: selectedTime,
           id_fiscal: user._id,
-        });
-        if(response.status == 200){
-          alert("Datos enviados correctamente")
+        };
+
+
+        // Intentar enviar la petición
+         const sent = await sendRequest(request);
+
+        if (sent) {
           setSelectedRuta(null);
           setBusData(null);
-          setSelectedRuta(null)
+        } else {
+          setRequestQueue((prevQueue) => [...prevQueue, request]);
+          setSelectedRuta(null);
+          setBusData(null);
         }
-      } catch (error) {
-        console.log(error)
+
       } finally {
-       setIsSubmitting(false); // Establecer isSubmitting a false al final
+        setIsSubmitting(false); // Establecer isSubmitting a false al final
       }
     }else{
       alert("Debes seleccionar ruta y autobús");
     }
-
   }
+  
+  
+  useEffect(() => {
+    const processQueue = async () => {
+      if (isProcessingQueue || requestQueue.length === 0) return;
+      setIsProcessingQueue(true);
+        let backupQueue
+       for (let i = 0; i < requestQueue.length; i++) {
+        const nextRequest = requestQueue[i];
+        console.log(requestQueue.length);
+        alert(nextRequest.toString());
+        const sent = await sendRequest(nextRequest, true);
+        if (sent) {
+          backupQueue = (prevQueue) => prevQueue.filter((_, index) => index !== i);
+        } else {
+          break; // Si una petición falla, detener el procesamiento de la cola
+        }
+      }
+      setRequestQueue(backupQueue);
+      setIsProcessingQueue(false);
+    };
+
+    const unsubscribe = NetInfo.addEventListener(state => {
+      if (state.isConnected) {
+        console.log('connected')
+        processQueue();
+      }else{
+        console.log('not connected')
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [requestQueue, isProcessingQueue]);
   
   const onTimeChange = (event, selectedDate) => {
     const currentDate = selectedDate || selectedTime;
