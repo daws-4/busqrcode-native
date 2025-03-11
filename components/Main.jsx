@@ -83,7 +83,7 @@ export function Main() {
       if (response.status === 200) {
         // alert(isQueued ? 'Petición enviada desde la cola' : 'Datos enviados correctamente');
         // setTimeout(() => alert(''), 3000);
-        return true; // Indicar que la petición se envió correctamente
+        return false; // Indicar que la petición se envió correctamente
       }
     } catch (error) {
       console.log(error + " error");
@@ -123,7 +123,8 @@ export function Main() {
           setSelectedRuta(null);
           setBusData(null);
         } else {
-          setRequestQueue((prevQueue) => [...prevQueue, request]);
+          alert(requestQueue.toString())
+          setRequestQueue((requestQueue) => [request, ...requestQueue]);
           setSelectedRuta(null);
           setBusData(null);
         }
@@ -136,31 +137,26 @@ export function Main() {
     }
   }
   
-  
+   // Procesar la cola de peticiones, se va a crear una función diferente para enviar los datos de la cola y se va a entender mejor cómo funciona
+  const processQueue = async () => {
+    if (isProcessingQueue || requestQueue.length === 0) return;
+    setIsProcessingQueue(true);
+      let backupQueue = []
+     for (let i = 0; i < requestQueue.length; i++) {
+      const nextRequest = requestQueue[i];
+      console.log(requestQueue.length);
+      alert(requestQueue.length);
+      const sent = await sendRequest(nextRequest, true)
+    }
+    setRequestQueue(backupQueue);
+    setIsProcessingQueue(false);
+  };
   useEffect(() => {
-    const processQueue = async () => {
-      if (isProcessingQueue || requestQueue.length === 0) return;
-      setIsProcessingQueue(true);
-        let backupQueue
-       for (let i = 0; i < requestQueue.length; i++) {
-        const nextRequest = requestQueue[i];
-        console.log(requestQueue.length);
-        alert(nextRequest.toString());
-        const sent = await sendRequest(nextRequest, true);
-        if (sent) {
-          backupQueue = (prevQueue) => prevQueue.filter((_, index) => index !== i);
-        } else {
-          break; // Si una petición falla, detener el procesamiento de la cola
-        }
-      }
-      setRequestQueue(backupQueue);
-      setIsProcessingQueue(false);
-    };
 
     const unsubscribe = NetInfo.addEventListener(state => {
       if (state.isConnected) {
         console.log('connected')
-        processQueue();
+        // processQueue();
       }else{
         console.log('not connected')
       }
@@ -203,6 +199,9 @@ export function Main() {
             <Text className="text-xl font-bold">Escánea el código QR</Text>
           </Pressable>
         </Link>
+        <Pressable className="bg-slate-400 p-2 m-4 rounded" onPress={() => processQueue()}>
+            <Text className="text-xl font-bold">Enviar Cola</Text>
+          </Pressable>
       </View>
       {busData && (
         <View className="mt-6 p-4">
