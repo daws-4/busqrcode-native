@@ -79,7 +79,7 @@ export function Main() {
       const response = await axios.post(`https://stllbusqrcode.vercel.app/api/app/timestamp`, request);
 
       if (response.status === 200) {
-        setBusQueue([...busQueue.filter((r) => r !== request)]);
+        // setBusQueue([...busQueue.filter((r) => r !== request)]);
         return true; // Indicar que la petición se envió correctamente
       }
     } catch (error) {
@@ -157,10 +157,12 @@ export function Main() {
       let backupQueue = [];
       for (let i = 0; i < busQueue.length; i++) {
         const nextRequest = busQueue[i];
-        console.log(busQueue.length, 'longitud de la cola, iteración número', i, 'datos de la cola', busQueue);
-        await sendQueueRequest(nextRequest);
+        const bus = busList.find((b) => b._id === nextRequest.id_unidad).numero;
+        console.log('se envió la unidad: ', bus)
+        const sent = await sendQueueRequest(nextRequest);
       }
       setIsProcessingQueue(false);
+      setBusQueue([]);
     };
   useEffect(() => {
 
