@@ -131,7 +131,8 @@ export function Main() {
 
         // Intentar enviar la petición
         const sent = await sendRequest(request);
-
+ 
+      
         if (sent) {
           setSelectedRuta(null);
           setBusData(null);
