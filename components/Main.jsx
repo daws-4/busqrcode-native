@@ -10,6 +10,8 @@ import {
   useBusListToggleContext,
   useBusQueueContext,
   useBusQueueToggleContext,
+  ConnectionStateContext,
+  ConnectionStateToggleContext,
 } from "../lib/AuthProvider";
 import { Screen } from "./Screen";
 import { Picker } from "@react-native-picker/picker";
@@ -28,6 +30,8 @@ export function Main() {
   const busQueue = useBusQueueContext();
   const setBusQueue = useBusQueueToggleContext();
   const setBusList = useBusListToggleContext();
+  const connection = ConnectionStateContext();
+  const setConnection = ConnectionStateToggleContext();
   const [selectedRuta, setSelectedRuta] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedTime, setSelectedTime] = useState(new Date());
@@ -37,6 +41,9 @@ export function Main() {
   const [isLoading, setIsLoading] = useState(true);
   const  [requestQueue, setRequestQueue] =useState([]) ;
   const [isProcessingQueue, setIsProcessingQueue] = useState(false);
+
+
+  const [connectionTest, setConnectionTest] = useState(true);
 
 
   useEffect(() => {
@@ -74,11 +81,17 @@ export function Main() {
     fetchData();
   }, []);
 
+  //
+  //petición de la cola hacia el servidor
   const sendQueueRequest = async (request) => {
     try {
-      const response = await axios.post(`https://stllbusqrcode.vercel.app/api/app/timestamp`, request);
+        const response = await Promise.race([
+        axios.post(`https://stllbusqrcode.vercel.app/api/app/timestamp`, request),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+      ]);
 
       if (response.status === 200) {
+        alert('Datos enviados correctamente desde la cola');
         // setBusQueue([...busQueue.filter((r) => r !== request)]);
         return true; // Indicar que la petición se envió correctamente
       }
@@ -86,18 +99,20 @@ export function Main() {
       return false; // Indicar que la petición no se envió correctamente
   }
   };
+  //
+  //petición normal hacia el servidor
  const sendRequest = async (request, isQueued = false) => {
   setIsSubmitting(true); 
     try {
       const response = await Promise.race([
-        axios.post(`https://.vercel.app/api/app/timestamp`, request),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000))
+        axios.post(`https://stllbusqrcode.vercel.app/api/app/timestamp`, request),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
       ]);
 
       if (response.status === 200) {
-        alert(isQueued ? 'Petición enviada desde la cola' : 'Datos enviados correctamente');
+        alert('Datos enviados correctamente');
         // setTimeout(() => alert(''), 3000);
-        return false; // Indicar que la petición se envió correctamente
+        return true; // Indicar que la petición se envió correctamente
       }
     } catch (error) {
       console.log(error + " error");
@@ -106,6 +121,10 @@ export function Main() {
       return false; // Indicar que la petición se agregó a la cola
     }
   };
+
+
+  //
+  // función para manejar el envío de datos
   const handleSubmit = async () => {
     if (isSubmitting) return;
     if (busData && selectedRuta) {
@@ -117,7 +136,7 @@ export function Main() {
         const day = String(now.getUTCDate()).padStart(2, '0');
         const hours = String(now.getUTCHours()).padStart(2, '0');
         const minutes = String(now.getUTCMinutes()).padStart(2, '0');
-        const seconds = String(now.getUTCSeconds()).padStart(3, '0');
+        const seconds = String(now.getUTCSeconds()).padStart(2, '0');
         const milliseconds = String(now.getUTCMilliseconds()).padStart(3, '0');
         const utcDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
 
@@ -151,36 +170,60 @@ export function Main() {
 
   console.log(busQueue, 'datos de la cola', busQueue.length)
   
-   // Procesar la cola de peticiones, se va a crear una función diferente para enviar los datos de la cola y se va a entender mejor cómo funciona
+  //
+  // Procesar la cola de peticiones pendientes cada 10 segundos si hay conexión a internet y la cola no está vacía 
  const processQueue = async () => {
-      if (isProcessingQueue || busQueue.length === 0) return;
-      setIsProcessingQueue(true);
-      let backupQueue = [];
-      for (let i = 0; i < busQueue.length; i++) {
-        const nextRequest = busQueue[i];
-        const bus = busList.find((b) => b._id === nextRequest.id_unidad).numero;
-        console.log('se envió la unidad: ', bus)
-        const sent = await sendQueueRequest(nextRequest);
-      }
-      setIsProcessingQueue(false);
-      setBusQueue([]);
-    };
-  useEffect(() => {
+    if (isProcessingQueue || busQueue.length === 0) return;
+    setIsProcessingQueue(true);
+    let backupQueue = [];
+    let currentIndex = 0;
 
-    const unsubscribe = NetInfo.addEventListener(state => {
-      if (state.isConnected) {
-        console.log('connected')
-        // processQueue();
-      }else{
-        console.log('not connected')
+    while (currentIndex < busQueue.length) {
+      const nextRequest = busQueue[currentIndex];
+      const bus = busList.find((b) => b._id === nextRequest.id_unidad)?.numero;
+      console.log('se envió la unidad: ', bus);
+      const sent = await sendQueueRequest(nextRequest);
+
+      if (sent) {
+        // Si la petición se envió correctamente, elimina el elemento del busQueue
+        busQueue.splice(currentIndex, 1);
+      } else {
+        // Si la petición no se envió, agrega el elemento al backupQueue y avanza el índice
+        alert('No se pudo enviar la petición de la cola');
+        backupQueue.push(nextRequest);
+        currentIndex++;
       }
+    }
+
+    setIsProcessingQueue(false);
+    setBusQueue([...backupQueue, ...busQueue]); // Combinar backupQueue y busQueue
+  };
+  useEffect(() => {
+    let intervalId;
+
+    if (busQueue.length > 0) {
+      intervalId = setInterval(() => {
+        processQueue();
+      }, 10000); // 10000 ms = 10 segundos
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId); // Limpiar el intervalo cuando el componente se desmonte
+    };
+  }, [busQueue, isProcessingQueue]);
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setConnection(state.isConnected);
     });
 
     return () => {
       unsubscribe();
     };
-  }, [requestQueue, isProcessingQueue]);
-  
+  }, [setConnection]);
+
+  //
+  // Función para manejar el cambio de hora
   const onTimeChange = (event, selectedDate) => {
     const currentDate = selectedDate || selectedTime;
     setShowTimePicker(false);
@@ -213,11 +256,17 @@ export function Main() {
             <Text className="text-xl font-bold">Escánea el código QR</Text>
           </Pressable>
         </Link>
-         {busQueue.length > 0 && (
+         {/* {busQueue.length > 0 && (
                 <Pressable className="bg-slate-400 p-2 m-4 rounded" onPress={() => processQueue()}>
             <Text className="text-xl font-bold">Enviar Cola</Text>
           </Pressable>
-              )}
+              )} */}
+
+          {/* <Pressable className="bg-slate-400 p-2 m-4 rounded" onPress={() => setConnectionTest(!connectionTest)}>
+            <Text className="text-xl font-bold">
+              {connection ? 'Conectado' : 'Desconectado'}
+            </Text>
+          </Pressable> */}
       </View>
       {busData && (
         <View className="mt-6 p-4">
