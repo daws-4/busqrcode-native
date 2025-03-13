@@ -196,7 +196,7 @@ export function Main() {
     }
 
     setIsProcessingQueue(false);
-    setBusQueue([...backupQueue, ...busQueue]); // Combinar backupQueue y busQueue
+    setBusQueue([...backupQueue]); // Combinar backupQueue y busQueue
   };
   useEffect(() => {
     let intervalId;
