@@ -1,13 +1,12 @@
 import { Screen } from "../../components/Screen"
 import {useEffect, useState} from "react"
-import { View, Text, Pressable } from "react-native"
+import { View, Text, Pressable, ScrollView } from "react-native"
 import { useBusIdContext, useBusIdToggleContext, useBusListContext } from "../../lib/AuthProvider";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { FlashOff, FlashOn } from "../../components/Icons";
 import { router, Link } from "expo-router";
 import axios from "axios";
 import { API } from "@env";
-import { ScrollView } from "react-native-web";
 export default function Scanqr() {
     const [permission, requestPermission] = useCameraPermissions();
     const [flash, setFlash] = useState(false);
