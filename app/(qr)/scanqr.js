@@ -7,6 +7,7 @@ import { FlashOff, FlashOn } from "../../components/Icons";
 import { router, Link } from "expo-router";
 import axios from "axios";
 import { API } from "@env";
+import { ScrollView } from "react-native-web";
 export default function Scanqr() {
     const [permission, requestPermission] = useCameraPermissions();
     const [flash, setFlash] = useState(false);
@@ -67,6 +68,8 @@ export default function Scanqr() {
 
     return (
       <Screen>
+        <ScrollView>
+
         <View className="flex flex-col justify-center items-center">
           {permission ? (
             <CameraView
@@ -119,6 +122,7 @@ export default function Scanqr() {
             </View>
           )}
         </View>
+        </ScrollView>
       </Screen>
     );
 }
