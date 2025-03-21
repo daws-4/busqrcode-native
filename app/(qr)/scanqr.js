@@ -92,18 +92,6 @@ export default function Scanqr() {
               <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
                 <Text className="font-bold text-black">Unidad: </Text>
                 {busData.numero}
-                <Text className="font-bold text-black"> Placa: </Text>
-                {busData.placa}
-              </Text>
-              <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
-                <Text className="font-bold text-black">Conductor: </Text>
-                {busData.nombre_conductor}
-              </Text>
-              <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
-                <Text className="font-bold text-black">
-                  Teléfono del Conductor:
-                </Text>
-                {busData.telefono_conductor}
               </Text>
 
               <View>
