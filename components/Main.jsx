@@ -110,7 +110,7 @@ export function Main() {
       ]);
 
       if (response.status === 200) {
-        alert('Datos enviados correctamente');
+        // alert('Datos enviados correctamente');
         // setTimeout(() => alert(''), 3000);
         return true; // Indicar que la petición se envió correctamente
       }
@@ -172,55 +172,57 @@ export function Main() {
   
   //
   // Procesar la cola de peticiones pendientes cada 10 segundos si hay conexión a internet y la cola no está vacía 
- const processQueue = async () => {
-    if (isProcessingQueue || busQueue.length === 0) return;
-    setIsProcessingQueue(true);
-    let backupQueue = [];
-    let currentIndex = 0;
+const processQueue = async () => {
+  if (isProcessingQueue || busQueue.length === 0) return;
+  setIsProcessingQueue(true);
+  let backupQueue = new Set();
+  let currentIndex = 0;
 
-    while (currentIndex < busQueue.length) {
-      const nextRequest = busQueue[currentIndex];
-      const bus = busList.find((b) => b._id === nextRequest.id_unidad)?.numero;
+  while (currentIndex < busQueue.length) {
+    const nextRequest = busQueue[currentIndex];
+    const bus = busList.find((b) => b._id === nextRequest.id_unidad)?.numero;
+    const sent = await sendQueueRequest(nextRequest);
+    
+    if (sent) {
       console.log('se envió la unidad: ', bus);
-      const sent = await sendQueueRequest(nextRequest);
+      // Si la petición se envió correctamente, elimina el elemento del busQueue
+      busQueue.splice(currentIndex, 1);
+    } else {
+      console.log('fallo en el envío de la unidad: ', bus);
 
-      if (sent) {
-        // Si la petición se envió correctamente, elimina el elemento del busQueue
-        busQueue.splice(currentIndex, 1);
-      } else {
-        // Si la petición no se envió, agrega el elemento al backupQueue y avanza el índice
-        // alert('No se pudo enviar la petición de la cola');
-        backupQueue.push(nextRequest);
-        currentIndex++;
-      }
+      // Si la petición no se envió, agrega el elemento al backupQueue y avanza el índice
+      backupQueue.add(nextRequest);
+      currentIndex++;
     }
+  }
 
-    setIsProcessingQueue(false);
-    setBusQueue([...backupQueue]); // Combinar backupQueue y busQueue
+  setIsProcessingQueue(false);
+  setBusQueue([...backupQueue]); // Combinar backupQueue y busQueue sin duplicados
+};
+
+useEffect(() => {
+  let intervalId;
+
+  if (busQueue.length > 0) {
+    intervalId = setInterval(() => {
+      processQueue();
+    }, 10000); // 10000 ms = 10 segundos
+  }
+
+  return () => {
+    if (intervalId) clearInterval(intervalId); // Limpiar el intervalo cuando el componente se desmonte
   };
-  useEffect(() => {
-    let intervalId;
+}, [busQueue, isProcessingQueue]);
 
-    if (busQueue.length > 0) {
-      intervalId = setInterval(() => {
-        processQueue();
-      }, 10000); // 10000 ms = 10 segundos
-    }
+useEffect(() => {
+  const unsubscribe = NetInfo.addEventListener(state => {
+    setConnection(state.isConnected);
+  });
 
-    return () => {
-      if (intervalId) clearInterval(intervalId); // Limpiar el intervalo cuando el componente se desmonte
-    };
-  }, [busQueue, isProcessingQueue]);
-
-  useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener(state => {
-      setConnection(state.isConnected);
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [setConnection]);
+  return () => {
+    unsubscribe();
+  };
+}, [setConnection]);
 
   //
   // Función para manejar el cambio de hora
