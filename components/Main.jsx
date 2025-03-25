@@ -275,12 +275,6 @@ useEffect(() => {
           <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
             <Text className="font-bold text-black">Unidad: </Text>
             {busData.numero}
-            <Text className="font-bold text-black"> Placa: </Text>
-            {busData.placa}
-          </Text>
-          <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
-            <Text className="font-bold text-black">Conductor: </Text>
-            {busData.nombre_conductor}
           </Text>
           <View className='m-3 bg-slate-200 rounded'>
             <Picker
