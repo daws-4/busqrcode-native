@@ -134,7 +134,6 @@ export function Main() {
                   `${url}/api/app/timestamp/fiscal/${id}`
                 );
                 if (response.status === 200) {
-                  console.log(response);
                   alert("Registro eliminado");
                   const newRegistros = getRegistros.filter((r) => r._id !== id);
                   setGetRegistros(newRegistros);
@@ -187,8 +186,15 @@ export function Main() {
         ),
       ]);
 
+
+
+          //    hacer la función si el response.status es igual a 201 y el bus pasó retardado
+
+
+
+          
       if (response.status === 200) {
-        // alert('Datos enviados correctamente');
+        alert('Datos enviados correctamente');
         // setTimeout(() => alert(''), 3000);
         return true; // Indicar que la petición se envió correctamente
       }
@@ -205,6 +211,7 @@ export function Main() {
   const handleSubmit = async () => {
     if (isSubmitting) return;
     if (busData && selectedRuta) {
+      console.log(busData, selectedRuta, 'datos del bus' ) 
       setIsSubmitting(true); // Establecer isSubmitting a true al inicio
       try {
         const now = new Date();
@@ -245,7 +252,6 @@ export function Main() {
     }
   };
 
-  console.log(busQueue, "datos de la cola", busQueue.length);
 
   //
   // Procesar la cola de peticiones pendientes cada 10 segundos si hay conexión a internet y la cola no está vacía
@@ -281,6 +287,7 @@ export function Main() {
     let intervalId;
 
     if (busQueue.length > 0) {
+      console.log(busQueue, "datos de la cola", busQueue.length);
       intervalId = setInterval(() => {
         processQueue();
       }, 10000); // 10000 ms = 10 segundos
@@ -289,6 +296,7 @@ export function Main() {
     return () => {
       if (intervalId) clearInterval(intervalId); // Limpiar el intervalo cuando el componente se desmonte
     };
+
   }, [busQueue, isProcessingQueue]);
 
   useEffect(() => {

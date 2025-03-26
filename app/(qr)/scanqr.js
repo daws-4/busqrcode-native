@@ -77,7 +77,7 @@ export default function Scanqr() {
               enableTorch={flash}
               style={{ width: 400, height: 400 }}
             >
-              <View className='flex p-4 w-14'>
+              <View className='flex p-4 ml-6 w-14'>
 
               <Pressable onPress={toggleFlash} className='bg-slate-100 '>
                 {flash ? <FlashOn /> : <FlashOff />}
