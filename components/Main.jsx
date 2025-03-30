@@ -19,7 +19,7 @@ import {
   useBusQueueToggleContext,
   ConnectionStateContext,
   ConnectionStateToggleContext,
-  UrlConnectionContext
+  UrlConnectionContext,
 } from "../lib/AuthProvider";
 import { Screen } from "./Screen";
 import { Picker } from "@react-native-picker/picker";
@@ -40,7 +40,7 @@ export function Main() {
   const setBusQueue = useBusQueueToggleContext();
   const setBusList = useBusListToggleContext();
   const connection = ConnectionStateContext();
-  const url = UrlConnectionContext()
+  const url = UrlConnectionContext();
   const setConnection = ConnectionStateToggleContext();
   const [selectedRuta, setSelectedRuta] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,9 +62,7 @@ export function Main() {
   const fetchData = async () => {
     setIsLoading(true); // Iniciar carga
     try {
-      const data = (
-        await axios.get(`${url}/api/app/rutas`)
-      ).data;
+      const data = (await axios.get(`${url}/api/app/rutas`)).data;
       let rutasl = [];
       for (let r of data) {
         for (let f of r.fiscales) {
@@ -73,9 +71,7 @@ export function Main() {
           }
         }
       }
-      const buses = (
-        await axios.get(`${url}/api/app/unidades`)
-      ).data;
+      const buses = (await axios.get(`${url}/api/app/unidades`)).data;
 
       fetchRegistros();
       setBusList(buses);
@@ -89,79 +85,74 @@ export function Main() {
   const fetchRegistros = async () => {
     setIsLoading(true); // Iniciar carga
     try {
-          if (user.sethora) {
-            const response = await axios.post(
-              `${url}/api/app/timestamp/fiscal`,
-              {
-                numero_fiscal: user.numero,
-                id_fiscal: user._id,
-              }
-            );
-            const sortedData = response.data.sort(
-              (a, b) =>
-                new Date(b.timestamp_salida) - new Date(a.timestamp_salida)
-            );
-            setGetRegistros(sortedData);
-          }
+      if (user.sethora) {
+        const response = await axios.post(`${url}/api/app/timestamp/fiscal`, {
+          numero_fiscal: user.numero,
+          id_fiscal: user._id,
+        });
+        const sortedData = response.data.sort(
+          (a, b) => new Date(b.timestamp_salida) - new Date(a.timestamp_salida)
+        );
+        setGetRegistros(sortedData);
+      }
     } catch (error) {
       console.log(error + " error");
-    } finally{
+    } finally {
       setIsLoading(false);
     }
-
   };
   useEffect(() => {
     fetchData();
   }, []);
 
   // función para eliminar los registros de la base de datos
-  
-    const deleteRegistro = async (id) => {
-      Alert.alert(
-        "Alerta",
-        "¿Estás seguro de que quieres eliminar este registro?",
-        [
-          {
-            text: "Cancelar",
-            onPress: () => console.log("Cancelado"),
-            style: "cancel",
-          },
-          {
-            text: "OK",
-            onPress: async () => {
-              try {
-                const response = await axios.delete(
-                  `${url}/api/app/timestamp/fiscal/${id}`
-                );
-                if (response.status === 200) {
-                  alert("Registro eliminado");
-                  const newRegistros = getRegistros.filter((r) => r._id !== id);
-                  setGetRegistros(newRegistros);
-                }
-              } catch (error) {
-                alert("error");
-                console.log(error + " error");
+
+  const deleteRegistro = async (id) => {
+    Alert.alert(
+      "Alerta",
+      "¿Estás seguro de que quieres eliminar este registro?",
+      [
+        {
+          text: "Cancelar",
+          onPress: () => console.log("Cancelado"),
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: async () => {
+            try {
+              const response = await axios.delete(
+                `${url}/api/app/timestamp/fiscal/${id}`
+              );
+              if (response.status === 200) {
+                alert("Registro eliminado");
+                const newRegistros = getRegistros.filter((r) => r._id !== id);
+                setGetRegistros(newRegistros);
               }
-            },
+            } catch (error) {
+              alert("error");
+              console.log(error + " error");
+            }
           },
-        ],
-        { cancelable: false }
-      );
-    };
+        },
+      ],
+      { cancelable: false }
+    );
+  };
 
   //petición de la cola hacia el servidor
   const sendQueueRequest = async (request) => {
     try {
       const response = await Promise.race([
-        axios.post(
-          `${url}/api/app/timestamp`,
-          request
-        ),
+        axios.post(`${url}/api/app/timestamp`, request),
         new Promise((_, reject) =>
           setTimeout(() => reject(new Error("timeout")), 5000)
         ),
       ]);
-
+        if(response.status === 201){
+          alert('La unidad está retartada')
+          return true
+        }
       if (response.status === 200) {
         alert("Datos enviados correctamente desde la cola");
         // setBusQueue([...busQueue.filter((r) => r !== request)]);
@@ -177,24 +168,22 @@ export function Main() {
     setIsSubmitting(true);
     try {
       const response = await Promise.race([
-        axios.post(
-          `${url}/api/app/timestamp`,
-          request
-        ),
+        axios.post(`${url}/api/app/timestamp`, request),
         new Promise((_, reject) =>
           setTimeout(() => reject(new Error("timeout")), 5000)
         ),
       ]);
 
+      if (response.status === 201) {
+        {response.data.delay == 1
+          ? alert(`La unidad tiene ${response.data.delay} minuto de retraso`)
+          : alert(`La unidad tiene ${response.data.delay} minutos de retraso`); }
+        console.log(response.data.delay);
+        return true;
+      }
 
-
-          //    hacer la función si el response.status es igual a 201 y el bus pasó retardado
-
-
-
-          
       if (response.status === 200) {
-        alert('Datos enviados correctamente');
+        alert("Datos enviados correctamente");
         // setTimeout(() => alert(''), 3000);
         return true; // Indicar que la petición se envió correctamente
       }
@@ -211,7 +200,7 @@ export function Main() {
   const handleSubmit = async () => {
     if (isSubmitting) return;
     if (busData && selectedRuta) {
-      console.log(busData, selectedRuta, 'datos del bus' ) 
+      console.log(busData, selectedRuta, "datos del bus");
       setIsSubmitting(true); // Establecer isSubmitting a true al inicio
       try {
         const now = new Date();
@@ -245,13 +234,12 @@ export function Main() {
         }
       } finally {
         setIsSubmitting(false); // Establecer isSubmitting a false al final
-        fetchRegistros()
+        fetchRegistros();
       }
     } else {
       alert("Debes seleccionar ruta y autobús");
     }
   };
-
 
   //
   // Procesar la cola de peticiones pendientes cada 10 segundos si hay conexión a internet y la cola no está vacía
@@ -296,7 +284,6 @@ export function Main() {
     return () => {
       if (intervalId) clearInterval(intervalId); // Limpiar el intervalo cuando el componente se desmonte
     };
-
   }, [busQueue, isProcessingQueue]);
 
   useEffect(() => {
@@ -435,15 +422,17 @@ export function Main() {
                     <View
                       className="m-4 p-4 bg-slate-200 rounded "
                       key={registro._id}
-                      >
-                      <View className='flex flex-row justify-between'>
-                      <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
-                        <Text className="font-bold text-black">Control: </Text>
-                        {bus ? bus.numero : "N/A"}
-                      </Text>
-                      <Pressable onPress={() => deleteRegistro(registro._id)}>
-                        <DeleteIcon />
-                      </Pressable>
+                    >
+                      <View className="flex flex-row justify-between">
+                        <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
+                          <Text className="font-bold text-black">
+                            Control:{" "}
+                          </Text>
+                          {bus ? bus.numero : "N/A"}
+                        </Text>
+                        <Pressable onPress={() => deleteRegistro(registro._id)}>
+                          <DeleteIcon />
+                        </Pressable>
                       </View>
                       <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
                         <Text className="font-bold text-black">
