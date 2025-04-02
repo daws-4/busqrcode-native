@@ -92,6 +92,9 @@ if(user!==null){
           </Pressable>
         </View>
       </View>
+      <View>
+        <Text className="text-black text-black/90 text-center">© {now.getFullYear()} Línea Santa Teresa ver.1.1.8-test</Text>
+      </View>
       <StatusBar style="dark" />
     </Screen>
   );

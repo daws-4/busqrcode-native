@@ -51,9 +51,6 @@ export default function Scanqr() {
        }
        console.log("Type: " + type + "\nData: " + data);
      };
-      if (busData) {
-        console.log(busData, "test");
-      }
 
      const toggleFlash = () => {
        setFlash(
