@@ -56,7 +56,6 @@ export function Main() {
 
   //-------------------------- IMPORTANTE -----------------------
 
-  //            Mostrar si el autobús va retardado en base al registro anterior
 
   // ----------------      PENDIENTE ----------------------
   const fetchData = async () => {
@@ -141,6 +140,15 @@ export function Main() {
   };
 
   //petición de la cola hacia el servidor
+
+
+
+
+  // arreglar enviar arreglo en vez de individualmente
+
+
+
+  //
   const sendQueueRequest = async (request) => {
     try {
       const response = await Promise.race([
