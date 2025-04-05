@@ -191,7 +191,7 @@ export function Main() {
       if (response.status === 200) {
         alert("Datos enviados correctamente");
         // setTimeout(() => alert(''), 3000);
-        return false; // Indicar que la petición se envió correctamente
+        return true; // Indicar que la petición se envió correctamente
       }
     } catch (error) {
       console.log(error + " error");
