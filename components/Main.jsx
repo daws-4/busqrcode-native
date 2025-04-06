@@ -64,7 +64,7 @@ export function Main() {
       let rutasl = [];
       for (let r of data) {
         for (let f of r.fiscales) {
-          if (f.fiscal_id == user._id) {
+          if (f.fiscal_id == user?._id) {
             rutasl.push(r);
           }
         }
@@ -83,10 +83,10 @@ export function Main() {
   const fetchRegistros = async () => {
     setIsLoading(true); // Iniciar carga
     try {
-      if (user.sethora) {
+      if (user?.sethora) {
         const response = await axios.post(`${url}/api/app/timestamp/fiscal`, {
-          numero_fiscal: user.numero,
-          id_fiscal: user._id,
+          numero_fiscal: user?.numero,
+          id_fiscal: user?._id,
         });
         const sortedData = response.data.sort(
           (a, b) => new Date(b.timestamp_salida) - new Date(a.timestamp_salida)
@@ -148,7 +148,7 @@ export function Main() {
       const response = await Promise.race([
         axios.post(`${url}/api/app/timestamp`, request),
         new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("timeout")), 5000)
+          setTimeout(() => reject(new Error("timeout")), 30000)
         ),
       ]);
       // if(response.status === 201){
@@ -172,7 +172,7 @@ export function Main() {
       const response = await Promise.race([
         axios.post(`${url}/api/app/timestamp`, request),
         new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("timeout")), 5000)
+          setTimeout(() => reject(new Error("timeout")), 60000)
         ),
       ]);
 
@@ -224,7 +224,7 @@ export function Main() {
           id_unidad: busData._id,
           timestamp_telefono: utcDate,
           timestamp_salida: selectedTime,
-          id_fiscal: user._id,
+          id_fiscal: user?._id,
         };
 
         // Intentar enviar la petición
@@ -295,7 +295,7 @@ export function Main() {
       console.log(busQueue, "datos de la cola", busQueue.length);
       intervalId = setInterval(() => {
         processQueue();
-      }, 10000); // 10000 ms = 10 segundos
+      }, 40000); // 10000 ms = 40 segundos
     }
 
     return () => {
@@ -341,7 +341,7 @@ export function Main() {
     <ScrollView>
       <Screen>
         <View className="flex flex-col items-center justify-center">
-          <Text className="text-2xl">Bienvenido Fiscal {user.numero}</Text>
+          <Text className="text-2xl">Bienvenido Fiscal {user?.numero}</Text>
           <Link asChild href="/scanqr">
             <Pressable className="bg-slate-400 p-2 m-4 rounded">
               <Text className="text-xl font-bold">Escánea el código QR</Text>
@@ -382,7 +382,7 @@ export function Main() {
                 ))}
               </Picker>
             </View>
-            {user.sethora ? (
+            {user?.sethora ? (
               <View>
                 <Pressable
                   className="p-3 mt-10 bg-slate-200 rounded items-center justify-center border-slate-800 border-2"
@@ -425,7 +425,7 @@ export function Main() {
           </View>
         )}
 
-        {user.sethora ? (
+        {user?.sethora ? (
           <View className="m-6">
             {isLoading ? (
               <ActivityIndicator size="large" color="#0000ff" />
