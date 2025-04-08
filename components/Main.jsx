@@ -145,12 +145,7 @@ export function Main() {
   //
   const sendQueueRequest = async (request) => {
     try {
-      const response = await Promise.race([
-        axios.post(`${url}/api/app/timestamp`, request),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("timeout")), 20000)
-        ),
-      ]);
+      const response = await axios.post(`${url}/api/app/timestamp`, request);
 
       if (
         response.status === 200 ||
