@@ -148,20 +148,20 @@ export function Main() {
       const response = await Promise.race([
         axios.post(`${url}/api/app/timestamp`, request),
         new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("timeout")), 30000)
+          setTimeout(() => reject(new Error("timeout")), 20000)
         ),
       ]);
-      // if(response.status === 201){
-      //   alert('La unidad está retartada')
-      //   return false
-      // }
-      if (response.status === 200 || response.status === 201) {
-        // alert("Datos enviados correctamente desde la cola");
-        // setBusQueue([...busQueue.filter((r) => r !== request)]);
-        return true; // Indicar que la petición se envió correctamente
+
+      if (
+        response.status === 200 ||
+        response.status === 201 ||
+        response.status === 202
+      ) {
+        return { success: true }; // Indicar que la petición se envió correctamente
       }
     } catch (error) {
-      return false; // Indicar que la petición no se envió correctamente
+      console.log(error);
+      return { success: false }; // Indicar que la petición no se envió correctamente
     }
   };
   //
@@ -205,7 +205,7 @@ export function Main() {
   // función para manejar el envío de datos
   const handleSubmit = async () => {
     if (isSubmitting) return;
-    if (busData && selectedRuta) {
+    if (selectedRuta && busData) {
       console.log(busData, selectedRuta, "datos del bus");
       setIsSubmitting(true); // Establecer isSubmitting a true al inicio
       try {
@@ -228,26 +228,27 @@ export function Main() {
         };
 
         // Intentar enviar la petición
-        const sent = await sendRequest(request);
+        // const sent = await sendRequest(request);
 
-        if (sent) {
-          setSelectedRuta(null);
-          setBusData(null);
-        } else {
-          // Verificar si el registro ya existe en la cola
-          const existsInQueue = busQueue.some(
-            (item) =>
-              item.id_unidad === request.id_unidad &&
-              item.timestamp_salida === request.timestamp_salida
-          );
+        // if (sent) {
+        //   setSelectedRuta(null);
+        //   setBusData(null);
+        // } else {
+        // Verificar si el registro ya existe en la cola
+        const existsInQueue = busQueue.some(
+          (item) =>
+            item.id_unidad === request.id_unidad &&
+            item.timestamp_salida === request.timestamp_salida
+        );
 
-          if (!existsInQueue) {
-            setBusQueue([...busQueue, request]);
-          }
-
-          setSelectedRuta(null);
-          setBusData(null);
+        if (!existsInQueue) {
+          // alert("La petición se agregó a la cola");
+          setBusQueue([...busQueue, request]);
         }
+
+        setSelectedRuta(null);
+        setBusData(null);
+        // }
       } finally {
         setIsSubmitting(false); // Establecer isSubmitting a false al final
         fetchRegistros();
@@ -258,51 +259,45 @@ export function Main() {
   };
   //
   // Procesar la cola de peticiones pendientes cada 10 segundos si hay conexión a internet y la cola no está vacía
-  const processQueue = async () => {
-    if (isProcessingQueue || busQueue.length === 0) return;
-    setIsProcessingQueue(true);
-
-    const updatedQueue = [...busQueue]; // Copia de la cola actual
-    const failedRequests = []; // Lista para almacenar las peticiones fallidas
-
-    for (let i = 0; i < updatedQueue.length; i++) {
-      const nextRequest = updatedQueue[i];
-      const bus = busList.find((b) => b._id === nextRequest.id_unidad)?.numero;
-
-      const sent = await sendQueueRequest(nextRequest);
-
-      if (sent) {
-        console.log("Se envió la unidad: ", bus);
-      } else {
-        console.log("Fallo en el envío de la unidad: ", bus);
-        failedRequests.push(nextRequest); // Agregar a la lista de fallidos
-      }
-    }
-
-    // Actualizar la cola con las peticiones fallidas
-    setBusQueue(failedRequests);
-    setIsProcessingQueue(false);
-
-    if (failedRequests.length === 0) {
-      alert("Todos los datos de la cola se enviaron correctamente");
-    }
-  };
-
   useEffect(() => {
-    let intervalId;
+    const processQueue = async () => {
+      if (showTimePicker || isProcessingQueue || busQueue.length === 0) return;
+      setIsProcessingQueue(true);
 
-    if (busQueue.length > 0 && !isProcessingQueue) {
-      console.log(busQueue, "datos de la cola", busQueue.length);
-      intervalId = setInterval(() => {
-        processQueue();
-      }, 40000); // 10000 ms = 40 segundos
-    }
+      const updatedQueue = [...busQueue]; // Copia de la cola actual
+      const failedRequests = []; // Lista para almacenar las peticiones fallidas
 
-    return () => {
-      if (intervalId) clearInterval(intervalId); // Limpiar el intervalo cuando el componente se desmonte
+      for (let i = 0; i < updatedQueue.length; i++) {
+        const nextRequest = updatedQueue[i];
+        const bus = busList.find(
+          (b) => b._id === nextRequest.id_unidad
+        )?.numero;
+
+        const result = await sendQueueRequest(nextRequest);
+
+        if (result.success) {
+          console.log("Se envió la unidad: ", bus);
+        } else {
+          console.log("Fallo en el envío de la unidad: ", bus);
+          failedRequests.push(nextRequest); // Agregar a la lista de fallidos
+        }
+      }
+
+      // Actualizar la cola con las peticiones fallidas
+      setBusQueue(failedRequests);
+      setIsProcessingQueue(false);
+
+      if (failedRequests.length === 0) {
+        alert("Datos enviados correctamente");
+        console.log("Todos los datos de la cola se enviaron correctamente");
+      }
     };
-  }, [busQueue, isProcessingQueue]);
 
+    if (busQueue.length > 0 && !isProcessingQueue && !showTimePicker) {
+      console.log(busQueue, "datos de la cola", busQueue.length);
+      processQueue();
+    }
+  }, [busQueue, isProcessingQueue]);
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       setConnection(state.isConnected);
@@ -447,9 +442,13 @@ export function Main() {
                           </Text>
                           {bus ? bus.numero : "N/A"}
                         </Text>
-                        <Pressable onPress={() => deleteRegistro(registro._id)}>
-                          <DeleteIcon />
-                        </Pressable>
+                        {user.setdelete && (
+                          <Pressable
+                            onPress={() => deleteRegistro(registro._id)}
+                          >
+                            <DeleteIcon />
+                          </Pressable>
+                        )}
                       </View>
                       <Text className="text-black text-black/90 mb-2 mx-4 text-lg">
                         <Text className="font-bold text-black">
